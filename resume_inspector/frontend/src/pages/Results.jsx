@@ -10,7 +10,7 @@ export default function Results() {
     const stored = localStorage.getItem("cv_analysis_result");
     if (stored) {
       try {
-        setAnalysisData(JSON.parse(stored));
+      setAnalysisData(JSON.parse(stored));
       } catch (e) {
         setAnalysisData(null);
       }
@@ -259,17 +259,17 @@ export default function Results() {
                   </div>
                   
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 32 }}>
-                    {/* Strengths */}
-                    <div style={{ flex: 1, minWidth: 260, background: "linear-gradient(135deg, #e8f5e9 0%, #f7fafd 100%)", borderRadius: 14, padding: 24 }}>
-                      <h3 style={{ color: "#388e3c", fontWeight: 700, fontSize: 18, marginBottom: 12 }}>✅ Strengths</h3>
-                      <ul style={{ color: "#388e3c", fontSize: 15, paddingLeft: 18 }}>
+                  {/* Strengths */}
+                  <div style={{ flex: 1, minWidth: 260, background: "linear-gradient(135deg, #e8f5e9 0%, #f7fafd 100%)", borderRadius: 14, padding: 24 }}>
+                    <h3 style={{ color: "#388e3c", fontWeight: 700, fontSize: 18, marginBottom: 12 }}>✅ Strengths</h3>
+                    <ul style={{ color: "#388e3c", fontSize: 15, paddingLeft: 18 }}>
                         {strengths.length > 0 ? strengths.map((s, i) => <li key={i}>{s}</li>) : <li>No major strengths detected.</li>}
-                      </ul>
-                    </div>
-                    {/* Weaknesses */}
-                    <div style={{ flex: 1, minWidth: 260, background: "linear-gradient(135deg, #fff3e0 0%, #f7fafd 100%)", borderRadius: 14, padding: 24 }}>
-                      <h3 style={{ color: "#e65100", fontWeight: 700, fontSize: 18, marginBottom: 12 }}>⚠️ Weaknesses</h3>
-                      <ul style={{ color: "#e65100", fontSize: 15, paddingLeft: 18 }}>
+                    </ul>
+                  </div>
+                  {/* Weaknesses */}
+                  <div style={{ flex: 1, minWidth: 260, background: "linear-gradient(135deg, #fff3e0 0%, #f7fafd 100%)", borderRadius: 14, padding: 24 }}>
+                    <h3 style={{ color: "#e65100", fontWeight: 700, fontSize: 18, marginBottom: 12 }}>⚠️ Weaknesses</h3>
+                    <ul style={{ color: "#e65100", fontSize: 15, paddingLeft: 18 }}>
                         {allWeaknesses.length > 0 ? allWeaknesses.map((w, i) => (
                           <li key={i} style={{ 
                             marginBottom: 8,
@@ -281,7 +281,7 @@ export default function Results() {
                             {w}
                           </li>
                         )) : <li>No major weaknesses detected.</li>}
-                      </ul>
+                    </ul>
                     </div>
                   </div>
                 </motion.div>
@@ -471,12 +471,12 @@ export default function Results() {
                   style={{ display: "flex", flexWrap: "wrap", gap: 32 }}
                 >
                   <div style={{ flex: 1, minWidth: 260, background: "#e3ecfa", borderRadius: 14, padding: 24 }}>
-                    <h3 style={{ color: "#1a237e", fontWeight: 700, fontSize: 18, marginBottom: 12 }}>Recommendations</h3>
-                    <ul style={{ color: "#1a237e", fontSize: 15, paddingLeft: 18 }}>
+                  <h3 style={{ color: "#1a237e", fontWeight: 700, fontSize: 18, marginBottom: 12 }}>Recommendations</h3>
+                  <ul style={{ color: "#1a237e", fontSize: 15, paddingLeft: 18 }}>
                       {recommendations.length > 0 ? recommendations.map((rec, idx) => (
                         <li key={idx}>{rec}</li>
                       )) : <li>No recommendations at this time.</li>}
-                    </ul>
+                  </ul>
                   </div>
                 </motion.div>
               )}
