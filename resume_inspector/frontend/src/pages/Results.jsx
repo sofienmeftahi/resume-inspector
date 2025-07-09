@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaSignOutAlt, FaLinkedin, FaGithub, FaTwitter } from "react-icons/fa";
+import { FaSignOutAlt, FaLinkedin, FaGithub, FaTwitter, FaDownload } from "react-icons/fa";
+import { useTheme } from "../contexts/ThemeContext";
+import DarkModeToggle from "../components/DarkModeToggle";
+import { downloadPDFReport } from "../utils/pdfExport";
 
 export default function Results() {
   const [analysisData, setAnalysisData] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const stored = localStorage.getItem("cv_analysis_result");
@@ -75,6 +80,23 @@ export default function Results() {
     window.location.href = "/";
   };
 
+  // Handler for PDF download
+  const handleDownloadPDF = async () => {
+    if (!analysisData) return;
+    
+    setIsGeneratingPDF(true);
+    try {
+      const fileName = analysisData.filename || analysisData.fileName || "CV";
+      const filename = `${fileName.replace(/\.[^/.]+$/, "")}-analysis-report.pdf`;
+      await downloadPDFReport(analysisData, filename);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF report. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
   // Add new tabs for Writing Quality and JD Matching
   const tabs = [
     { id: "overview", name: "Overview", icon: "📊" },
@@ -87,7 +109,7 @@ export default function Results() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #e3ecfa 0%, #f7fafd 100%)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--gradient-primary)" }}>
       {/* Navigation Bar */}
       <div
         style={{
@@ -96,43 +118,57 @@ export default function Results() {
           top: 0,
           left: 0,
           zIndex: 20,
-          background: "rgba(255,255,255,0.92)",
-          boxShadow: "0 2px 12px 0 rgba(44,54,99,0.08)",
+          background: isDarkMode ? "rgba(31,41,55,0.92)" : "rgba(255,255,255,0.92)",
+          boxShadow: `0 2px 12px 0 ${isDarkMode ? "rgba(0,0,0,0.3)" : "rgba(44,54,99,0.08)"}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           padding: "0.7rem 2.5rem 0.7rem 2.5rem",
-          borderBottom: "1px solid #e3eaf2",
+          borderBottom: `1px solid ${isDarkMode ? "#374151" : "#e3eaf2"}`,
           backdropFilter: "blur(6px)",
         }}
       >
-        <span style={{ fontWeight: 800, fontSize: 24, color: "#1a237e", letterSpacing: 1 }}>
+        <span style={{ fontWeight: 800, fontSize: 24, color: isDarkMode ? "#f9fafb" : "#1a237e", letterSpacing: 1 }}>
           Resume Inspector
         </span>
-        <button
-          style={{
-            background: "#c62828",
-            color: "#fff",
-            border: "none",
-            borderRadius: 8,
-            padding: "8px 28px",
-            fontWeight: 700,
-            fontSize: 17,
-            cursor: "pointer",
-            boxShadow: "0 2px 8px 0 rgba(198,40,40,0.10)",
-            transition: "background 0.2s, box-shadow 0.2s",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <FaSignOutAlt /> Logout
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <DarkModeToggle />
+          <button
+            style={{
+              background: "#c62828",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              padding: "8px 28px",
+              fontWeight: 700,
+              fontSize: 17,
+              cursor: "pointer",
+              boxShadow: "0 2px 8px 0 rgba(198,40,40,0.10)",
+              transition: "background 0.2s, box-shadow 0.2s",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <FaSignOutAlt /> Logout
+          </button>
+        </div>
       </div>
       <div style={{ height: 72 }} /> {/* Spacer for nav */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "2.5rem 1.5rem 1.5rem 1.5rem" }}>
         {/* Score Card */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 32, alignItems: "center", justifyContent: "space-between", background: "#fff", borderRadius: 18, boxShadow: "0 4px 24px 0 rgba(44,54,99,0.08)", padding: "2.5rem 2rem", marginBottom: 32 }}>
+        <div style={{ 
+          display: "flex", 
+          flexWrap: "wrap", 
+          gap: 32, 
+          alignItems: "center", 
+          justifyContent: "space-between", 
+          background: "var(--bg-primary)", 
+          borderRadius: 18, 
+          boxShadow: `0 4px 24px 0 ${isDarkMode ? "rgba(0,0,0,0.3)" : "rgba(44,54,99,0.08)"}`, 
+          padding: "2.5rem 2rem", 
+          marginBottom: 32 
+        }}>
           {/* Circular Score */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 180 }}>
             <svg width="110" height="110">
@@ -155,48 +191,64 @@ export default function Results() {
           </div>
           {/* File info & progress */}
           <div style={{ flex: 1, minWidth: 220 }}>
-            <div style={{ fontWeight: 700, fontSize: 20, color: "#1a237e" }}>{fileName}</div>
-            <div style={{ color: "#5a6a85", fontSize: 15, marginBottom: 10 }}>Analyzed on {analysisDate}</div>
-            <div style={{ width: "100%", background: "#e3ecfa", borderRadius: 8, height: 14, margin: "10px 0 8px 0" }}>
-              <div style={{ height: 14, background: "linear-gradient(90deg, #4bb543, #6a82fb)", borderRadius: 8, width: `${overallScore}%`, transition: "width 1s" }} />
+            <div style={{ fontWeight: 700, fontSize: 20, color: "var(--text-primary)" }}>{fileName}</div>
+            <div style={{ color: "var(--text-secondary)", fontSize: 15, marginBottom: 10 }}>Analyzed on {analysisDate}</div>
+            <div style={{ width: "100%", background: "var(--border-primary)", borderRadius: 8, height: 14, margin: "10px 0 8px 0" }}>
+              <div style={{ height: 14, background: "linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))", borderRadius: 8, width: `${overallScore}%`, transition: "width 1s" }} />
             </div>
             <div style={{ display: "flex", gap: 24, marginTop: 12 }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, color: "#4bb543", fontSize: 18 }}>{yearsExperience}</div>
-                <div style={{ color: "#5a6a85", fontSize: 13 }}>Years Exp.</div>
+                <div style={{ fontWeight: 700, color: "var(--accent-primary)", fontSize: 18 }}>{yearsExperience}</div>
+                <div style={{ color: "var(--text-secondary)", fontSize: 13 }}>Years Exp.</div>
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, color: "#1a237e", fontSize: 18 }}>{grade}</div>
-                <div style={{ color: "#5a6a85", fontSize: 13 }}>Level</div>
+                <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: 18 }}>{grade}</div>
+                <div style={{ color: "var(--text-secondary)", fontSize: 13 }}>Level</div>
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontWeight: 700, color: "#6a82fb", fontSize: 18 }}>{academicLevel}</div>
-                <div style={{ color: "#5a6a85", fontSize: 13 }}>Academic</div>
+                <div style={{ fontWeight: 700, color: "var(--accent-secondary)", fontSize: 18 }}>{academicLevel}</div>
+                <div style={{ color: "var(--text-secondary)", fontSize: 13 }}>Academic</div>
               </div>
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontWeight: 700, color: "#ff9800", fontSize: 18 }}>{foundSkills.length}</div>
-                <div style={{ color: "#5a6a85", fontSize: 13 }}>Skills</div>
+                <div style={{ color: "var(--text-secondary)", fontSize: 13 }}>Skills</div>
               </div>
             </div>
           </div>
           {/* Download Button */}
           <button
+            onClick={handleDownloadPDF}
+            disabled={isGeneratingPDF}
             style={{
-              background: "#4bb543",
+              background: isGeneratingPDF ? "var(--text-muted)" : "var(--accent-primary)",
               color: "#fff",
               border: "none",
               borderRadius: 8,
               padding: "12px 32px",
               fontWeight: 700,
               fontSize: 17,
-              cursor: "pointer",
+              cursor: isGeneratingPDF ? "not-allowed" : "pointer",
               boxShadow: "0 2px 8px 0 rgba(75,181,67,0.10)",
               transition: "background 0.2s, box-shadow 0.2s",
               alignSelf: "center",
               marginLeft: 16,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              opacity: isGeneratingPDF ? 0.6 : 1,
             }}
           >
-            Download Report
+            {isGeneratingPDF ? (
+              <>
+                <div className="spinner" style={{ width: 16, height: 16, border: "2px solid #fff", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
+                Generating...
+              </>
+            ) : (
+              <>
+                <FaDownload />
+                Download PDF
+              </>
+            )}
           </button>
         </div>
         {/* Tabs */}
